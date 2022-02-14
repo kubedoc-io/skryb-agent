@@ -1,0 +1,7 @@
+cloud: 
+  type: k8s
+  resources:
+    includes: 
+      - metadata:
+          namespace: skryb
+model: memory
