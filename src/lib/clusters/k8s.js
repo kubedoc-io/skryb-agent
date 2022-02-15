@@ -176,6 +176,10 @@ export function k8sCloudFactory(cloudSpec) {
   function filterResources({ resource }) {
     let included = true;
 
+    if (!cloudSpec.resources) {
+      return included;
+    }
+
     if (cloudSpec.resources.includes) {
       included = cloudSpec.resources.includes.reduce((included, pattern) => included || fos.matches(pattern, resource), false);
     }

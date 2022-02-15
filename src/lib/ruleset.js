@@ -2,7 +2,7 @@ import { find } from "query-collection";
 
 function ruleset({ rules, project, mutations_ }) {
   return {
-    $: function (resource) {
+    $: function ({ resource }) {
       rules.map(rule => {
         if (find([resource], rule.expr).length > 0) {
           const mutation = rule.mutator(resource);

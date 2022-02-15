@@ -27,7 +27,6 @@ export function engineFactory(project) {
   return {
     mutations_,
     process({ type, resource }) {
-      console.log("received resource event %s ", type, resource.metadata.name);
       resources_.next({ type, resource });
       return mutations_.asObservable();
     }

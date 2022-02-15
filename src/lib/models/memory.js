@@ -1,6 +1,7 @@
 import { BehaviorSubject } from "rxjs";
 import { produce } from "immer";
 import _ from "lodash";
+import { fullTextIndexer } from "./flexsearch-indexer.js";
 
 export function memoryModel(project) {
   const state = new BehaviorSubject({
@@ -10,11 +11,23 @@ export function memoryModel(project) {
     teams: []
   });
 
+  const indexer = fullTextIndexer(project);
+
+  // Maintain our full text search indexes
+  state.subscribe(indexer.indexModel);
+
   return {
+    select(selector, filter) {
+      return state.asObservable();
+    },
     query(expr) {
       return state.asObservable();
     },
+    async search(query) {
+      return indexer.search(query, state.getValue());
+    },
     mutate(mutation) {
+      console.log("reducing mutation", mutation);
       state.next(
         produce(state.getValue(), draft => {
           switch (mutation.type) {

@@ -4,4 +4,7 @@ cloud:
     includes: 
       - metadata:
           namespace: skryb
+      - kind: Namespace 
+        metadata:
+          name: skryb     
 model: memory
