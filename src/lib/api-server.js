@@ -16,6 +16,7 @@ export function apiServer({ project, metaModel, engine, hub, clusters }) {
 
   // register all api routes
   app.get("/model/:section?", function (req, res) {
+    console.log("query model", req.params.section);
     const subscription = metaModel.query().subscribe(model => {
       if (req.params.section) {
         res.json(_.get(model, req.params.section));

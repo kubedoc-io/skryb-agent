@@ -8,3 +8,7 @@ cloud:
         metadata:
           name: skryb     
 model: memory
+plugins:
+  github:
+    module: "@kubedoc-io/plugin-github"
+    token: env::GITHUB_TOKEN
