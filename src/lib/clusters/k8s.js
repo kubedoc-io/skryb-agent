@@ -37,7 +37,11 @@ class SkrybOperator extends Operator.default {
 
 export function k8sCloudFactory(cloudSpec) {
   const kc = new k8s.KubeConfig();
-  kc.loadFromDefault();
+  try {
+    kc.loadFromDefault();
+  } catch (err) {
+    console.error("unable to load k8s config", err);
+  }
 
   const k8sCoreApi = kc.makeApiClient(k8s.CoreV1Api);
   const k8sExtApi = kc.makeApiClient(k8s.ApiextensionsV1Api);
@@ -196,38 +200,42 @@ export function k8sCloudFactory(cloudSpec) {
       const resources_ = new ReplaySubject();
 
       async function processResources() {
-        listNamespaces().subscribe(resources_);
+        try {
+          listNamespaces().subscribe(resources_);
 
-        // SERVICES
-        listServices().subscribe(resources_);
-        listEndpoints().subscribe(resources_);
-        listIngresses().subscribe(resources_);
+          // SERVICES
+          listServices().subscribe(resources_);
+          listEndpoints().subscribe(resources_);
+          listIngresses().subscribe(resources_);
 
-        // WORKLOADS
-        listDeployments().subscribe(resources_);
-        listReplicationControllers().subscribe(resources_);
-        listStatefulSets().subscribe(resources_);
-        listPods().subscribe(resources_);
-        listReplicaSets().subscribe(resources_);
-        listDaemonSets().subscribe(resources_);
-        listJobs().subscribe(resources_);
-        listCronJobs().subscribe(resources_);
+          // WORKLOADS
+          listDeployments().subscribe(resources_);
+          listReplicationControllers().subscribe(resources_);
+          listStatefulSets().subscribe(resources_);
+          listPods().subscribe(resources_);
+          listReplicaSets().subscribe(resources_);
+          listDaemonSets().subscribe(resources_);
+          listJobs().subscribe(resources_);
+          listCronJobs().subscribe(resources_);
 
-        // STORAGE
-        listPVCs().subscribe(resources_);
+          // STORAGE
+          listPVCs().subscribe(resources_);
 
-        // CONFIG
-        listSecrets().subscribe(resources_);
-        listConfigMaps().subscribe(resources_);
+          // CONFIG
+          listSecrets().subscribe(resources_);
+          listConfigMaps().subscribe(resources_);
 
-        // CRDS
-        listCRDs().subscribe(crd => {
-          //TODO: retrieve resources for this crd and push them in resources stream
-          // See raw example to list all resources for this crd (group.name), versions
+          // CRDS
+          listCRDs().subscribe(crd => {
+            //TODO: retrieve resources for this crd and push them in resources stream
+            // See raw example to list all resources for this crd (group.name), versions
 
-          // push this crd
-          resources_.next(crd);
-        });
+            // push this crd
+            resources_.next(crd);
+          });
+        } catch (err) {
+          console.error("unable to watch resources", err);
+        }
       }
       processResources();
 
