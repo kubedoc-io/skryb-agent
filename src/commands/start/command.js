@@ -8,10 +8,10 @@ import { apiServer } from "../../lib/api-server.js";
 export async function start(opts = {}) {
   const project = await projectLoader({ path: opts.project });
 
-  const metaModel = metaModelFactory(project);
-  const engine = engineFactory(project);
-  const hub = hubFactory(project);
   const clusters = cloudFactory(project);
+  const metaModel = metaModelFactory(project);
+  const hub = hubFactory(project);
+  const engine = engineFactory({ project, model: metaModel, hub });
 
   engine.mutations_.subscribe(metaModel.mutate);
   clusters.monitor().subscribe(engine.process);

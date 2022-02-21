@@ -1,7 +1,9 @@
-import { BehaviorSubject } from "rxjs";
-import { produce } from "immer";
+import { BehaviorSubject, Subject } from "rxjs";
+import { produceWithPatches, enablePatches } from "immer";
 import _ from "lodash";
 import { fullTextIndexer } from "./flexsearch-indexer.js";
+
+enablePatches();
 
 export function memoryModel(project) {
   const state = new BehaviorSubject({
@@ -11,12 +13,18 @@ export function memoryModel(project) {
     teams: []
   });
 
+  const changes = new Subject();
+
   const indexer = fullTextIndexer(project);
 
   // Maintain our full text search indexes
   state.subscribe(indexer.indexModel);
 
   return {
+    changes: changes.asObservable(),
+    getSnapshot() {
+      return state.getValue();
+    },
     select(selector, filter) {
       return state.asObservable();
     },
@@ -26,10 +34,12 @@ export function memoryModel(project) {
     async search(query) {
       return indexer.search(query, state.getValue());
     },
-    mutate(mutation) {
-      console.log("reducing mutation", mutation);
-      state.next(
-        produce(state.getValue(), draft => {
+    mutate(mutations) {
+      if (!Array.isArray(mutations)) {
+        mutations = [mutations];
+      }
+      mutations.map(mutation => {
+        const [nextState, patches] = produceWithPatches(state.getValue(), draft => {
           switch (mutation.type) {
             case "SET_SYSTEM": {
               const existing = draft.systems.find(s => s.name === mutation.data.name);
@@ -47,10 +57,33 @@ export function memoryModel(project) {
               } else {
                 draft.microservices.push({ ...mutation.data });
               }
+              break;
+            }
+            case "SET_RESOURCE": {
+              const existing = draft.resources.find(m => m.name === mutation.data.name);
+              if (existing) {
+                _.merge(existing, mutation.data);
+              } else {
+                draft.resources.push({ ...mutation.data });
+              }
+              break;
+            }
+            case "SET_SOURCECONTROL_INFOS": {
+              let target = null;
+              switch (mutation.target.type) {
+                case "service":
+                  target = draft.microservices.find(m => m.name === mutation.target.name);
+                  break;
+              }
+              // find the target micro-service
+              target.scInfos = mutations.infos;
+              break;
             }
           }
-        })
-      );
+        });
+        state.next(nextState);
+        changes.next({ type: "MODEL", changes: patches });
+      });
     }
   };
 }

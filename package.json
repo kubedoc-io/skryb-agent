@@ -20,6 +20,7 @@
     "chalk": "^5.0.0",
     "commander": "^9.0.0",
     "cors": "^2.8.5",
+    "dotenv": "^16.0.0",
     "express": "^4.17.2",
     "express-ws": "^5.0.2",
     "figlet": "^1.5.2",
@@ -28,6 +29,7 @@
     "immer": "^9.0.12",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
+    "micromongo": "^0.3.1",
     "query-collection": "^1.0.13",
     "rxjs": "^7.5.4"
   }

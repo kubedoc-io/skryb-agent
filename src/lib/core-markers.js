@@ -1,5 +1,6 @@
 export const coreAnnotations = {
   type: "kubedoc.io/type",
+  component: "kubedoc.io/component",
   docs: "kubedoc.io/docs",
   homepage: "kubedoc.io/homepage",
   sourceControl: "kubedoc.io/source-control",
@@ -9,7 +10,13 @@ export const coreAnnotations = {
   version: "kubedoc.io/version",
   operatedBy: "kubedoc.io/operated-by",
   managedBy: "kubedoc.io/managed-by",
+  createdBy: "kubedoc.io/created-by",
+  updatedBy: "kubedoc.io/updated-by",
   issuesTracker: "kubedoc.io/issues-tracker",
+  issueTracker: "kubedoc.io/issue-tracker",
   monitoring: "kubedoc.io/monitoring",
-  logs: "kubedoc.io/logs"
+  logs: "kubedoc.io/logs",
+  scBranch: "kubedoc.ui/sc-branch",
+  ci: "kubedoc.io/ci",
+  cd: "kubedoc.io/cd"
 };

@@ -1,13 +1,16 @@
 import { Subject } from "rxjs";
 import coreRuleSetBuilder from "../rules/core/index.js";
 
-export function engineFactory(project) {
+export function engineFactory({ project, model, plugins = [], hub }) {
   const resources_ = new Subject();
   const mutations_ = new Subject();
   const rulesets = [];
 
   // load all rules
-  rulesets.push(coreRuleSetBuilder(project, mutations_));
+  rulesets.push(coreRuleSetBuilder(project, mutations_, { model, hub }));
+
+  // loop through all plugins
+  rulesets.push(...plugins.map(plugin => plugin.installRuleSet && plugin.installRuleSet(project, mutations_, { model, hub })));
 
   // a rule that look for a version-control annotation with value github. It will use a token in the project context and retrieve a bunch of facts for the specified repo
   // another rule might look for a version-control git only and will retrieve generic git details from history and branches.
@@ -26,8 +29,8 @@ export function engineFactory(project) {
 
   return {
     mutations_,
-    process({ type, resource }) {
-      resources_.next({ type, resource });
+    process({ type, changes, resource }) {
+      resources_.next({ type, changes, resource });
       return mutations_.asObservable();
     }
   };

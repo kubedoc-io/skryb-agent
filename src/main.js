@@ -1,8 +1,6 @@
 #!/usr/bin/env node
 
-/**
- *
- */
+import * as dotenv from "dotenv";
 
 // read arguments
 import { program } from "commander";
@@ -11,6 +9,8 @@ import chalk from "chalk";
 import { snapshot } from "./commands/snapshots/command.js";
 import { monitor } from "./commands/monitor/command.js";
 import { start } from "./commands/start/command.js";
+
+dotenv.config();
 
 console.log(chalk.blue(figlet.textSync("Skryb")));
 console.log(chalk.gray("Enterprise Cloud Native Documentation Engine. Version 1.0.0"));

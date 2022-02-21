@@ -10,5 +10,5 @@ cloud:
 model: memory
 plugins:
   github:
-    module: "@kubedoc-io/plugin-github"
+    module: ./plugins/github
     token: env::GITHUB_TOKEN
