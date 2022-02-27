@@ -21,7 +21,7 @@ export async function projectLoader({ path = "./skryb.yaml" } = {}) {
     async initPlugins(opts) {
       console.log("initializing all plugins", _state.config.plugins);
       return await Promise.all(
-        _state.config.plugins.map(async pluginSpec => {
+        (_state.config.plugins || []).map(async pluginSpec => {
           if (_.isString(pluginSpec)) {
             const pluginFactory = await import(Path.resolve(pluginSpec, "index.js"));
             console.log("plugin factory", pluginFactory);
