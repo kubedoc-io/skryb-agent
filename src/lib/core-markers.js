@@ -20,3 +20,10 @@ export const coreAnnotations = {
   ci: "kubedoc.io/ci",
   cd: "kubedoc.io/cd"
 };
+
+export const k8sLabels = {
+  name: "app.kubernetes.io/name",
+  component: "app.kubernetes.io/component",
+  partOf: "app.kubernetes.io/part-of",
+  version: "app.kubernetes.io/version"
+};

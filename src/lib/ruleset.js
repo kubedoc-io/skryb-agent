@@ -1,5 +1,3 @@
-import mm from "micromongo";
-
 function ruleset({ rules, mutations_, model }) {
   return {
     $: function (event) {
@@ -18,17 +16,9 @@ function ruleset({ rules, mutations_, model }) {
 
 function ruleFactory(spec) {
   return {
-    expr: spec.expr,
+    matcher: spec.matcher,
     matches(event) {
-      if (event.type === "MODEL") {
-        return mm.find(event.changes, spec.expr).length > 0;
-      } else {
-        if (event.resource) {
-          return mm.find([event.resource], spec.expr).length > 0;
-        } else {
-          return false;
-        }
-      }
+      return spec.matcher(event);
     },
     mutator: spec.mutator
   };
@@ -38,8 +28,8 @@ export function ruleSetBuilder(project, mutations_, { model, hub }) {
   const rules = [];
 
   const builder = {
-    addRule(expr, mutator) {
-      rules.push(ruleFactory({ expr, mutator }));
+    addRule(matcher, mutator) {
+      rules.push(ruleFactory({ matcher, mutator }));
       return this;
     },
     build() {

@@ -76,13 +76,18 @@ export function memoryModel(project) {
                   break;
               }
               // find the target micro-service
-              target.scInfos = mutations.infos;
+              if (target) {
+                target.scInfos = mutations.infos;
+              }
               break;
             }
           }
         });
-        state.next(nextState);
-        changes.next({ type: "MODEL", changes: patches });
+
+        if (patches.length > 0) {
+          state.next(nextState);
+          changes.next({ type: "MODEL", changes: patches });
+        }
       });
     }
   };

@@ -1,4 +1,4 @@
-import { ruleSetBuilder } from "../../src/lib/ruleset.js";
+import { ruleSetBuilder, modelChangeMatcher } from "../../src/lib/index.js";
 import _ from "lodash";
 import { Octokit } from "@octokit/core";
 import { buildTeam } from "./rules/build-team.js";
@@ -11,8 +11,8 @@ function extractToken(tokenSpec) {
   }
 }
 
-export function githubPlugin(project) {
-  const config = _.get(project, "plugins.github");
+export default function githubPlugin(project, config) {
+  console.log("received plugin config", config);
 
   const octokit = new Octokit({ auth: extractToken(config.token) });
 
@@ -80,7 +80,10 @@ export function githubPlugin(project) {
   return {
     installRuleSet(project, mutations_, { model, hub }) {
       console.log("Installing github ruleset");
-      return ruleSetBuilder(project, mutations_, { model, hub }).addRule({ path: "microservices" }, loadSourceControlInfos).addRule({ path: "scInfos" }, buildTeam).build();
+      return ruleSetBuilder(project, mutations_, { model, hub })
+        .addRule(modelChangeMatcher({ path: { $eq: "microservices" } }), loadSourceControlInfos)
+        .addRule(modelChangeMatcher({ path: { $eq: "scInfos" } }), buildTeam)
+        .build();
     }
   };
 }

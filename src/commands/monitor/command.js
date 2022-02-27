@@ -7,12 +7,17 @@ import { engineFactory } from "../../lib/engine.js";
 export async function monitor(opts = {}) {
   const project = await projectLoader({ path: opts.project });
 
-  const clusters = cloudFactory(project);
-  const metaModel = metaModelFactory(project);
-  const hub = hubFactory(project);
-  const engine = engineFactory({ project, model: metaModel, hub });
+  // load all plugins
+  const plugins = await project.initPlugins(opts);
+
+  const clusters = cloudFactory(project, { plugins });
+  const metaModel = metaModelFactory(project, { plugins });
+  const hub = hubFactory(project, { plugins });
+  const engine = engineFactory({ project, model: metaModel, hub, plugins });
 
   engine.mutations_.subscribe(metaModel.mutate);
+  metaModel.changes.subscribe(engine.process);
+
   clusters.monitor().subscribe(engine.process);
 
   metaModel.query("/").subscribe(model => hub.publish("model:change", model));

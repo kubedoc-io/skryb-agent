@@ -1,38 +1,53 @@
 /**
  * Core Ruleset
  */
-import { ruleSetBuilder } from "../../lib/ruleset.js";
-import { coreAnnotations } from "../../lib/core-markers.js";
+import { ruleSetBuilder, resourceMatcher, coreAnnotations, k8sLabels } from "../../lib/index.js";
+import _ from "lodash";
 
-// handle system, subsystem with namespaces
-// microservices with deployments, etc.
-// resources with statefulsets and deployments, etc.  we can detect a number of db using the exposed ports... queue, etc.
-//
+function modelMapAnnotations(obj, target, annotations = coreAnnotations) {
+  if (!obj || !obj.metadata || !obj.metadata.annotations) {
+    return {};
+  }
+  return _.reduce(
+    annotations,
+    (model, val, key) => {
+      if (obj.metadata.annotations[val]) {
+        model[key] = obj.metadata.annotations[val];
+      }
+      return model;
+    },
+    target
+  );
+}
+
+function modelMapLabels(obj, target, labels = []) {
+  if (!obj || !obj.metadata || !obj.metadata.labels) {
+    return {};
+  }
+  return _.reduce(
+    labels,
+    (model, val, key) => {
+      if (obj.metadata.labels[val]) {
+        model[key] = obj.metadata.labels[val];
+      }
+      return model;
+    },
+    target
+  );
+}
 
 function systemInfoFromNamespace(ns, model) {
   const mutations = [];
-  // kubedoc.io/type: system
-  // kubedoc.io/part-of: kubedoc
-  // kubedoc.io/release: alpha1
-  // kubedoc.io/version: '1.0.0'
-  // kubedoc.io/summary: Extract data from your kubernetes cluster to feed your Kubedoc developer portal2
-  // kubedoc.io/homepage: https://kubedoc.io/
 
   const system = {
     name: ns.metadata.name
   };
 
-  if (ns.metadata.annotations) {
-    system.type = ns.metadata.annotations[coreAnnotations.type];
-    system.summary = ns.metadata.annotations[coreAnnotations.summary];
-    system.homepage = ns.metadata.annotations[coreAnnotations.homepage];
-    system.version = ns.metadata.annotations[coreAnnotations.version];
-    system.release = ns.metadata.annotations[coreAnnotations.release];
-    system.partOf = ns.metadata.annotations[coreAnnotations.partOf];
+  modelMapAnnotations(ns, system, coreAnnotations);
+  modelMapLabels(ns, system, k8sLabels);
 
-    if (!model.systems.find(s => s.name === system.partOf)) {
-      mutations.push({ type: "SET_SYSTEM", data: { name: system.partOf, type: "system" } });
-    }
+  if (system.partOf && !model.systems.find(s => s.name === system.partOf)) {
+    mutations.push({ type: "SET_SYSTEM", data: { name: system.partOf, type: "system" } });
   }
 
   mutations.push({ type: "SET_SYSTEM", data: system });
@@ -55,98 +70,11 @@ function extractService(service, model) {
     name: service.metadata.name
   };
 
-  if (service.metadata.labels) {
-    // app.kubernetes.io/name: skryb-agent
-    // app.kubernetes.io/component: service
-    // app.kubernetes.io/part-of: kubedoc
-    // app.kubernetes.io/version: "1.0.0"
+  modelMapAnnotations(service, target, coreAnnotations);
+  modelMapLabels(service, target, k8sLabels);
 
-    if (service.metadata.labels["app.kubernetes.io/name"]) {
-      target.name === service.metadata.labels["app.kubernetes.io/name"];
-    }
-
-    if (service.metadata.labels["app.kubernetes.io/component"]) {
-      target.type = service.metadata.labels["app.kubernetes.io/component"];
-    }
-
-    if (service.metadata.labels["app.kubernetes.io/version"]) {
-      target.version = service.metadata.labels["app.kubernetes.io/version"];
-    }
-
-    if (service.metadata.labels["app.kubernetes.io/part-of"]) {
-      target.partOf = service.metadata.labels["app.kubernetes.io/part-of"];
-
-      if (!model.systems.find(s => s.name === target.partOf)) {
-        mutations.push({ type: "SET_SYSTEM", data: { name: target.partOf, type: "system" } });
-      }
-    }
-  }
-
-  if (service.metadata.annotations) {
-    // kubedoc.io/type: system
-    // kubedoc.io/part-of: kubedoc
-    // kubedoc.io/release: alpha1
-    // kubedoc.io/version: '1.0.0'
-    // kubedoc.io/summary: Extract data from your kubernetes cluster to feed your Kubedoc developer portal2
-    // kubedoc.io/component: system
-    // kubedoc.io/source-control: github::kubedoc-io/skryb-agent
-    // kubedoc.io/sc-branch: main
-    // kubedoc.io/issue-tracker: github::kubedoc-io/skryb-agent
-    // kubedoc.io/ci: github::kubedoc-io/skryb-agent
-    // kubedoc.io/cd: argodb::kubedoc/skryb
-    // kubedoc.io/managed-by: argocd
-    // kubedoc.io/created-by: jgrenon
-
-    if (service.metadata.annotations[coreAnnotations.type]) {
-      target.type = service.metadata.annotations[coreAnnotations.type];
-    }
-
-    if (service.metadata.annotations[coreAnnotations.component]) {
-      target.type = service.metadata.annotations[coreAnnotations.component];
-    }
-    if (service.metadata.annotations[coreAnnotations.summary]) {
-      target.summary = service.metadata.annotations[coreAnnotations.summary];
-    }
-    if (service.metadata.annotations[coreAnnotations.release]) {
-      target.release = service.metadata.annotations[coreAnnotations.release];
-    }
-    if (service.metadata.annotations[coreAnnotations.version]) {
-      target.version = service.metadata.annotations[coreAnnotations.version];
-    }
-    if (service.metadata.annotations[coreAnnotations.sourceControl]) {
-      target.sourceControl = service.metadata.annotations[coreAnnotations.sourceControl];
-    }
-    if (service.metadata.annotations[coreAnnotations.scBranch]) {
-      target.scBranch = service.metadata.annotations[coreAnnotations.scBranch];
-    }
-    if (service.metadata.annotations[coreAnnotations.issuesTracker]) {
-      target.issuesTracker = service.metadata.annotations[coreAnnotations.issuesTracker];
-    }
-    if (service.metadata.annotations[coreAnnotations.issueTracker]) {
-      target.issuesTracker = service.metadata.annotations[coreAnnotations.issueTracker];
-    }
-    if (service.metadata.annotations[coreAnnotations.ci]) {
-      target.ci = service.metadata.annotations[coreAnnotations.ci];
-    }
-    if (service.metadata.annotations[coreAnnotations.cd]) {
-      target.cd = service.metadata.annotations[coreAnnotations.cd];
-    }
-    if (service.metadata.annotations[coreAnnotations.createdBy]) {
-      target.createdBy = service.metadata.annotations[coreAnnotations.createdBy];
-    }
-    if (service.metadata.annotations[coreAnnotations.updatedBy]) {
-      target.updatedBy = service.metadata.annotations[coreAnnotations.updatedBy];
-    }
-    if (service.metadata.annotations[coreAnnotations.managedBy]) {
-      target.managedBy = service.metadata.annotations[coreAnnotations.managedBy];
-    }
-
-    if (service.metadata.annotations[coreAnnotations.partOf]) {
-      target.partOf = service.metadata.annotations[coreAnnotations.partOf];
-      if (!model.systems.find(s => s.name === target.partOf)) {
-        mutations.push({ type: "SET_SYSTEM", data: { name: target.partOf, type: "system" } });
-      }
-    }
+  if (target.partOf && !model.systems.find(s => s.name === target.partOf)) {
+    mutations.push({ type: "SET_SYSTEM", data: { name: target.partOf, type: "system" } });
   }
 
   // Extract infos from spec
@@ -168,11 +96,8 @@ function extractConfigResource(configMap, model) {
     data: configMap.data
   };
 
-  if (configMap.metadata.annotations) {
-    if (configMap.metadata.annotations[coreAnnotations.partOf]) {
-      target.partOf = configMap.metadata.annotations[coreAnnotations.partOf];
-    }
-  }
+  modelMapAnnotations(configMap, target, coreAnnotations);
+  modelMapLabels(configMap, target, k8sLabels);
 
   if (!model.systems.find(s => s.name === target.partOf)) {
     mutations.push({ type: "SET_SYSTEM", data: { name: target.partOf, type: "system" } });
@@ -185,9 +110,9 @@ function extractConfigResource(configMap, model) {
 
 export default function coreRuleSetBuilder(project, mutations_, { model, hub } = {}) {
   return ruleSetBuilder(project, mutations_, { model, hub })
-    .addRule({ kind: "Namespace" }, systemInfoFromNamespace)
-    .addRule({ kind: { $in: ["Deployment", "StatefulSet"] } }, microserviceInfoFromController)
-    .addRule({ kind: "Service" }, extractService)
-    .addRule({ kind: "ConfigMap" }, extractConfigResource)
+    .addRule(resourceMatcher({ kind: { $eq: "Namespace" } }), systemInfoFromNamespace)
+    .addRule(resourceMatcher({ kind: { $in: ["Deployment", "StatefulSet"] } }), microserviceInfoFromController)
+    .addRule(resourceMatcher({ kind: { $eq: "Service" } }), extractService)
+    .addRule(resourceMatcher({ kind: { $eq: "ConfigMap" } }), extractConfigResource)
     .build();
 }

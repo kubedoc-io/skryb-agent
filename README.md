@@ -53,3 +53,6 @@ https://kubernetes.io/docs/reference/labels-annotations-taints/
 https://ambassadorlabs.github.io/k8s-for-humans/
 https://backstage.io/docs/features/software-catalog/well-known-annotations
 https://backstage.io/docs/features/software-catalog/well-known-relations
+
+`kubectl annotate service MYSERVICE a8r.io/owner=”sallydev”`
+

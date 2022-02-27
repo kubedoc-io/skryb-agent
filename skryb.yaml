@@ -9,6 +9,8 @@ cloud:
           name: skryb     
 model: memory
 plugins:
-  github:
+  - id: github
     module: ./plugins/github
     token: env::GITHUB_TOKEN
+  - id: ambassador
+    module: ./plugins/ambassador

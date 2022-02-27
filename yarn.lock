@@ -2169,6 +2169,11 @@ shelljs@^0.8.5:
     interpret "^1.0.0"
     rechoir "^0.6.2"
 
+sift-noget@^8.0.1:
+  version "8.0.1"
+  resolved "https://registry.yarnpkg.com/sift-noget/-/sift-noget-8.0.1.tgz#acca1b8c6800399361a545e66a49b4b07990bbac"
+  integrity sha512-LC/QEEqUQZjgsWIDS4yFdeuIlXvjd+Ob2wAAI4HbGA5dN7kzwN13wxC2mn5etEwElNHmIdCnhFVtEgAl2NSB4w==
+
 signal-exit@^3.0.2, signal-exit@^3.0.3:
   version "3.0.7"
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.7.tgz#a9a1767f8af84155114eaabd73f99273c8f59ad9"
