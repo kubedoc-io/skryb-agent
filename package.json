@@ -1,0 +1,22 @@
+{
+  "name": "@kubedoc/skryb",
+  "version": "1.0.0",
+  "description": "Kubernetes data extraction agent for Kubedoc",
+  "main": "src/main.js",
+  "author": "Joel Grenon",
+  "type": "module",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "plugins/*",
+    "agent",
+    "libs/*"
+  ],
+  "dependencies": {
+    "dotenv": "^16.0.0",
+    "joi": "^17.6.0",
+    "js-yaml": "^4.1.0",
+    "lodash": "^4.17.21",
+    "rxjs": "^7.5.4"
+  }
+}

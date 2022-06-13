@@ -1,0 +1,16 @@
+cloud:
+  type: k8s
+  resources:
+    includes:
+      - metadata:
+          namespace: skryb
+      - kind: Namespace
+        metadata:
+          name: skryb
+model: memory
+plugins:
+  - id: github
+    module: ./plugins/github
+    token: env::GITHUB_TOKEN
+  - id: ambassador
+    module: ./plugins/ambassador
