@@ -10,7 +10,7 @@ cloud:
 model: memory
 plugins:
   - id: github
-    module: ./plugins/github
+    module: "@skryb/github-plugin"
     token: env::GITHUB_TOKEN
   - id: ambassador
-    module: ./plugins/ambassador
+    module: "@skryb/ambassador-plugin"

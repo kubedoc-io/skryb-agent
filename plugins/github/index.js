@@ -1,4 +1,4 @@
-import { ruleSetBuilder, modelChangeMatcher } from "../../src/lib/index.js";
+import { ruleSetBuilder, modelChangeMatcher } from "@skryb/core";
 import _ from "lodash";
 import { Octokit } from "@octokit/core";
 import { buildTeam } from "./rules/build-team.js";
@@ -19,7 +19,7 @@ export default function githubPlugin(project, config) {
   async function loadBranch(branch, { owner, repo }) {
     const { data } = await octokit.request("GET /repos/{owner}/{repo}/branches", {
       owner,
-      repo
+      repo,
     });
     return data.find(b => b.name === branch);
   }
@@ -28,7 +28,7 @@ export default function githubPlugin(project, config) {
     const resp = await octokit.request("GET /repos/{owner}/{repo}/commits", {
       owner,
       repo,
-      per_page: count
+      per_page: count,
     });
     return resp.data.map(d => d.commit);
   }
@@ -37,7 +37,7 @@ export default function githubPlugin(project, config) {
     const resp = await octokit.request("GET /repos/{owner}/{repo}/tags", {
       owner,
       repo,
-      per_page: count
+      per_page: count,
     });
     return resp.data;
   }
@@ -46,7 +46,7 @@ export default function githubPlugin(project, config) {
     const resp = await octokit.request("GET /repos/{owner}/{repo}/releases", {
       owner,
       repo,
-      per_page: count
+      per_page: count,
     });
     return resp.data;
   }
@@ -84,6 +84,6 @@ export default function githubPlugin(project, config) {
         .addRule(modelChangeMatcher({ path: { $eq: "microservices" } }), loadSourceControlInfos)
         .addRule(modelChangeMatcher({ path: { $eq: "scInfos" } }), buildTeam)
         .build();
-    }
+    },
   };
 }

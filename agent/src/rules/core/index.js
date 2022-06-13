@@ -1,7 +1,7 @@
 /**
  * Core Ruleset
  */
-import { ruleSetBuilder, resourceMatcher, coreAnnotations, k8sLabels } from "../../lib/index.js";
+import { ruleSetBuilder, resourceMatcher, coreAnnotations, k8sLabels } from "@skryb/core";
 import _ from "lodash";
 
 function modelMapAnnotations(obj, target, annotations = coreAnnotations) {
@@ -40,7 +40,7 @@ function systemInfoFromNamespace(ns, model) {
   const mutations = [];
 
   const system = {
-    name: ns.metadata.name
+    name: ns.metadata.name,
   };
 
   modelMapAnnotations(ns, system, coreAnnotations);
@@ -57,7 +57,7 @@ function systemInfoFromNamespace(ns, model) {
 
 function microserviceInfoFromController(controller) {
   const target = {
-    name: controller.metadata.name
+    name: controller.metadata.name,
   };
 
   return { type: "SET_MICROSERVICE", data: target };
@@ -67,7 +67,7 @@ function extractService(service, model) {
   const mutations = [];
 
   const target = {
-    name: service.metadata.name
+    name: service.metadata.name,
   };
 
   modelMapAnnotations(service, target, coreAnnotations);
@@ -93,7 +93,7 @@ function extractConfigResource(configMap, model) {
     type: "config",
     name: configMap.metadata.name,
     partOf: configMap.metadata.namespace,
-    data: configMap.data
+    data: configMap.data,
   };
 
   modelMapAnnotations(configMap, target, coreAnnotations);

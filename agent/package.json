@@ -1,5 +1,5 @@
 {
-  "name": "@skryb/agent",
+  "name": "agent",
   "version": "1.0.0",
   "description": "Kubernetes data extraction agent for Kubedoc",
   "type": "module",
@@ -11,10 +11,14 @@
   "bin": {
     "skryb": "./src/main.js"
   },
+  "scripts": {
+    "start": "./src/main.js start",
+    "monitor": "./src/main.js monitor",
+    "snapshot": "./src/main.js snapshot"
+  },
   "dependencies": {
     "@dot-i/k8s-operator": "^1.2.2",
     "@kubernetes/client-node": "^0.16.3",
-    "@octokit/core": "^3.5.1",
     "babel-polyfill": "^6.26.0",
     "body-parser": "^1.19.1",
     "chalk": "^5.0.0",

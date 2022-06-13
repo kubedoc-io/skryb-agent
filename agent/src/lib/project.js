@@ -3,8 +3,7 @@ import * as Path from "path";
 import fs from "fs";
 import chalk from "chalk";
 import _ from "lodash";
-import { resourceMatcher } from "./resource-matcher.js";
-import { modelChangeMatcher } from "./model-change-matcher.js";
+import { modelChangeMatcher, resourceMatcher } from "@skryb/core";
 
 export async function projectLoader({ path = "./skryb.yaml" } = {}) {
   console.log("loading yaml project spec", path);
@@ -13,8 +12,8 @@ export async function projectLoader({ path = "./skryb.yaml" } = {}) {
   const platform = {
     matchers: {
       resourceMatcher,
-      modelChangeMatcher
-    }
+      modelChangeMatcher,
+    },
   };
 
   const projectApi = {
@@ -23,17 +22,17 @@ export async function projectLoader({ path = "./skryb.yaml" } = {}) {
       return await Promise.all(
         (_state.config.plugins || []).map(async pluginSpec => {
           if (_.isString(pluginSpec)) {
-            const pluginFactory = await import(Path.resolve(pluginSpec, "index.js"));
+            const pluginFactory = await import(pluginSpec);
             console.log("plugin factory", pluginFactory);
             return pluginFactory.default({ ..._state.config, ...projectApi }, opts, platform);
           } else {
-            const pluginFactory = await import(Path.resolve(pluginSpec.module, "index.js"));
+            const pluginFactory = await import(pluginSpec.module);
             console.log("plugin factory", pluginFactory);
             return pluginFactory.default({ ..._state.config, ...projectApi }, { ...pluginSpec, ...opts }, platform);
           }
         })
       );
-    }
+    },
   };
 
   try {
@@ -43,7 +42,7 @@ export async function projectLoader({ path = "./skryb.yaml" } = {}) {
     console.log(chalk.yellowBright.bold("using default project settings. to override, create a `skryb.yaml` file in the current folder"));
     return {
       model: "v1",
-      ...projectApi
+      ...projectApi,
     };
   }
 }

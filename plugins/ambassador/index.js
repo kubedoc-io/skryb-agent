@@ -1,4 +1,4 @@
-import { ruleSetBuilder } from "../../src/lib/ruleset.js";
+import { ruleSetBuilder } from "@skryb/core";
 import _ from "lodash";
 import { extractServiceInfos } from "./rules/extract-service-infos.js";
 
@@ -11,6 +11,6 @@ export default function ambassadorPlugin(project, config, { matchers }) {
       return ruleSetBuilder(project, mutations_, { model, hub })
         .addRule(resourceMatcher({ kind: "Service" }), extractServiceInfos)
         .build();
-    }
+    },
   };
 }

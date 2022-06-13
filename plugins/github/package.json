@@ -1,0 +1,9 @@
+{
+  "name": "@skryb/github-plugin",
+  "version": "1.0.0",
+  "main": "./index.js",
+  "type": "module",
+  "dependencies": {
+    "@octokit/core": "^3.5.1"
+  }
+}
